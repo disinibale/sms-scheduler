@@ -1,0 +1,6 @@
+export enum EStatus {
+  ACCEPTED = 'ACCEPTD',
+  DELIVERED = 'DELIVRD',
+  UNDELIVERED = 'UNDELIV',
+  UNKNOWN = 'UNKNOWN',
+}
