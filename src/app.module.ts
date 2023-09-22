@@ -12,6 +12,7 @@ import { MessageModule } from './features/message/message.module';
 import { ScheduleModule } from './features/schedule/schedule.module';
 import { AppService } from './app.service';
 import { TwilioService } from './clients/twilio.service';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -21,6 +22,9 @@ import { TwilioService } from './clients/twilio.service';
     }),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmService,
+    }),
+    CacheModule.register({
+      ttl: 5000,
     }),
     MessageModule,
     ScheduleModule,

@@ -1,9 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
 
 @Injectable()
 export class TwilioService {
+  private readonly logger = new Logger(TwilioService.name);
   private readonly twilioClient: Twilio;
 
   constructor(
@@ -23,7 +24,6 @@ export class TwilioService {
         from: this.configService.get('application.twilioPhoneNumber'),
       });
     } catch (err: Error | unknown) {
-      console.error('Error sending SMS: ', err);
       throw err;
     }
   }

@@ -1,26 +1,27 @@
-import { Body, Controller, Param, Post, Get } from '@nestjs/common';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Get,
+  UseInterceptors,
+  Query,
+} from '@nestjs/common';
 
 import CreateMessageSchedulingDto from './app.dto';
-import TaskScheduler from './clients/taskScheduler.service';
-
-import { ScheduleService } from './features/schedule/schedule.service';
-import { MessageService } from './features/message/message.service';
+import { EStatus } from './utils/enums';
 import { AppService } from './app.service';
+import { MessageService } from './features/message/message.service';
 import { mapGetResponse, mapPostResponse } from './utils/responseMapper';
 
 @Controller()
+@UseInterceptors(CacheInterceptor)
 export class ApplicationController {
   constructor(
     private readonly appService: AppService,
-    private readonly taskSchedulerService: TaskScheduler,
-    private readonly scheduleService: ScheduleService,
     private readonly messageService: MessageService,
   ) {}
-
-  @Post('/aw')
-  createLog() {
-    return this.messageService.createLog();
-  }
 
   @Post('/')
   async createMessageScheduling(
@@ -42,5 +43,28 @@ export class ApplicationController {
     const mappedMessage = mapGetResponse(message);
 
     return mappedMessage[0];
+  }
+
+  @Get('/schedule/:scheduleId/sms')
+  async getScheduleMessage(
+    @Param('scheduleId') scheduleId: string,
+    @Query('status') status?: EStatus,
+  ) {
+    if (!scheduleId) {
+      return {
+        message: 'scheduleId params is missing',
+      };
+    }
+
+    const messages = await this.appService.getScheduleMessages(
+      scheduleId,
+      status,
+    );
+
+    return messages.map((message) => ({
+      scheduleId: message.schedule.id,
+      message: message.schedule.message,
+      status: message.status,
+    }));
   }
 }

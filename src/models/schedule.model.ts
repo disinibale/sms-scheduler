@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { Messages } from './messages.model';
 
 @Entity()
 export class Schedules {
@@ -17,6 +20,12 @@ export class Schedules {
 
   @Column({ type: 'text' })
   message: string;
+
+  @OneToMany(() => Messages, (message) => message.schedule, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'schedule_id' })
+  messages: Messages[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

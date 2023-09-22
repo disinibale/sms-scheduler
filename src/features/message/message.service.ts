@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from 'src/models/messages.model';
+import { EStatus } from 'src/utils/enums';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -14,20 +15,38 @@ export class MessageService {
     return 'SUCCESS ON BEING HITTED';
   }
 
+  async getByScheduleId(
+    scheduleId: string,
+    status?: EStatus,
+  ): Promise<Messages[]> {
+    const schedules = await this.messageRepository
+      .createQueryBuilder('messages')
+      .leftJoinAndSelect('messages.schedule', 'schedule')
+      .andWhere('schedule.id = :scheduleId', { scheduleId });
+
+    if (status) {
+      schedules.andWhere('messages.status = :status', { status });
+    }
+
+    return schedules.getMany();
+  }
+
   async save(data: Partial<Messages>): Promise<Messages> {
     return this.messageRepository.save(data);
   }
 
-  async updateById(
+  async updateStatusById(
     id: string,
-    data: Partial<Messages>,
+    status: EStatus,
   ): Promise<Messages | null> {
-    const message = this.messageRepository.findOne({ where: { id } });
+    const message = await this.messageRepository.findOne({ where: { id } });
     if (!message) {
       return null;
     }
 
-    return this.messageRepository.save(data);
+    message.status = status;
+
+    return this.messageRepository.save(message);
   }
 
   async getById(id: string): Promise<Messages[] | null> {
