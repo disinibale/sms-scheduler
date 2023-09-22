@@ -1,0 +1,37 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5500:5500'
+    depends_on:
+      - database
+    networks:
+      - app_network
+    environment:
+      - NODE_ENV=development
+      - APP_PORT=5500
+      - DB_NAME=forest_interactive
+      - DB_USER=root
+      - DB_PASS=root
+      - DB_HOST=localhost
+      - DB_PORT=3306
+      - TWILIO_SID=
+      - TWILIO_AUTH_TOKEN=
+      - TWILIO_PHONE_NUMBER=
+
+  database:
+    image: mysql/mysql-server:latest
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=root
+      - MYSQL_USER=root
+    networks:
+      - app_network
+
+networks:
+  app_network:
