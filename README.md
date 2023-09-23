@@ -138,7 +138,7 @@ The test carried out is an API test using the Postman tool, taking into account 
 ![Message Sent](result-1.png)
 
 As you can see, using this system that leverages ExpressJs that run on top of NestJS to send a message to the recipient only took about 14.57 ms. It is an astounding result that NodeJs can run the request to Twilio in that time, but I cannot provide how much time it takes for Twilio to send the SMS to the recipient since Twilio has its own system architecture. But I also can provide the screenshot of the SMS that has been received from my phone that looks like this :
-![Message Received](result-2.png)
+![Message Received](result-2.jpg)
 
 ## Criticism and Suggestions
 
