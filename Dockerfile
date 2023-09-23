@@ -1,27 +1,25 @@
+FROM node:18-alpine AS base
 
-FROM node:18-alpine as development
+RUN npm i -g pnpm
 
-WORKDIR /app
-
-COPY tsconfig*.json ./
-COPY package*.json ./
-
-RUN npm ci
-
-COPY src/ src/
-
-RUN npm run build
-
-FROM node:18-alpine as production
+FROM base as dependencies
 
 WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
 
-COPY package*.json ./
+FROM base AS build
 
-RUN npm ci --omit=dev
+WORKDIR /app
+COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
+RUN pnpm build
+RUN  pnpm prune --prod
 
-COPY --from=development /app/dist/ ./dist/
+FROM base AS deploy
 
-EXPOSE 3000
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
 
-CMD [ "node", "dist/main.js" ]
+CMD ["node", "dist/main.js"]
